@@ -63,7 +63,7 @@ function fetchSignature(e){
 
         // settings/options for the request
         let requestOptions = {
-                method: 'GET',
+                method: 'GET'
                 // redirect: 'follow' // for Postman
             };
 
