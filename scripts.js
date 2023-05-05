@@ -63,12 +63,15 @@ function fetchSignature(e){
 
         // settings/options for the request
         let requestOptions = {
-            method: 'GET',
-            redirect: 'follow'
+                method: 'GET',
+                // redirect: 'follow' // for Postman
             };
 
+        let url = "https://api.jsonbin.io/v3/b/645476c4b89b1e229997300a";
+        // let url = 
+
         // the call to the server and handling of data returned
-        fetch("https://6f186305-ab26-4839-b806-380e3560e049.mock.pstmn.io/sign-offs", requestOptions)
+        fetch(url, requestOptions)
         .then(response => response.json())
         .then(result => {
             // add the results array to local storage to pull from on future button clicks
