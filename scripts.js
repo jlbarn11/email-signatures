@@ -96,21 +96,26 @@ function fetchSignature(e){
         fetch(url, requestOptions)
         .then(response => response.json())
         .then(result => {
-            // add the results array to local storage to pull from on future button clicks
-            let sigString = JSON.stringify(result.record);
-
-            // add that string to local storage
-            localStorage.setItem("sigs", sigString);
-
-            // using the radio buttons, determine how many signatures to display
-            if(document.getElementById("one").checked){
-                // the user only wants one signature, so show them one
-                displayOne(result.record);
-
+            // check for an error returned from the server
+            if(result.message){
+                throw result.message;
             }else{
-                // they want them ALL. Let's GOOOOOO
-                displayAll(result.record);
+                // add the results array to local storage to pull from on future button clicks
+                let sigString = JSON.stringify(result.record);
 
+                // add that string to local storage
+                localStorage.setItem("sigs", sigString);
+
+                // using the radio buttons, determine how many signatures to display
+                if(document.getElementById("one").checked){
+                    // the user only wants one signature, so show them one
+                    displayOne(result.record);
+
+                }else{
+                    // they want them ALL. Let's GOOOOOO
+                    displayAll(result.record);
+
+                }
             }
         })
         .catch(error => {
