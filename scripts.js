@@ -15,15 +15,51 @@ function getRandomIntInclusive(min, max) {
 // let created = new Date("2023-05-04");
 // let now = new Date();
 
+// helper function to format all signatures for display and add them to the page
+function displayAll(signatures){
+    // paragraph to display signature
+    let output = document.getElementById("output");
+
+    // empty string to build output
+    let html = "";
+
+    // first, a message
+    html += `<span id="msg">Your plethora of nonsense, Jeeves:</span>`;
+            
+    // then generate the rest of the string of signatures
+    for(let signature of signatures.signatures){
+        html += `<span class="multi-sig">&bull;&nbsp;${signature}</span>`;
+    }
+
+    // add the HTML string to the page
+    output.innerHTML = html;
+}
+
+// helper function to format one signature for display and add them to the page
+function displayOne(signatures){
+    // paragraph to display signature
+    let output = document.getElementById("output");
+
+    // empty string to build output
+    let html = "";
+
+    // generate a random number to use to access an element in the array
+    let random = getRandomIntInclusive(0, signatures.signatures.length);
+
+    // get the random signature from the returned signatures array and add it to the string
+    html = `<span id="msg">Your signature, milady:</span>
+            <span id="sig">${signatures.signatures[random]}</span>`;
+
+    // add the HTML string to the page
+    output.innerHTML = html;
+}
+
 function fetchSignature(e){
     // we're in a form, so prevent submission
     e.preventDefault();
     
-    // paragraph to display signature
+    // paragraph to display signature(s) or error
     let output = document.getElementById("output");
-    
-    // empty string to build output
-    let html = "";
     
     // if the user has already requested all of the signatures once, they will be in their local storage, so let's check for those before we make another call to the server
     let localCopy = localStorage.getItem("sigs") || "";
@@ -36,46 +72,32 @@ function fetchSignature(e){
         // then, using the radio buttons, determine how many signatures to display
         if(document.getElementById("one").checked){
             // the user only wants one signature, so show them one
+            displayOne(jsonSigs);
             
-            // generate a random number to use to access an element in the array
-            let random = getRandomIntInclusive(0, jsonSigs.signatures.length);
-
-            // get the random signature from the returned signatures array and add it to the string
-            html = `<span id="msg">Your signature, milady:</span>
-                                <span id="sig">${jsonSigs.signatures[random]}</span>`;
         }else{
             // they want them ALL. Let's GOOOOOO
-            
-            // first, a message
-            html += `<span id="msg">Your plethora of nonsense, Jeeves:</span>`;
-            
-            // then generate the rest of the string of signatures
-            for(let signature of jsonSigs.signatures){
-                html += `<span class="multi-sig">&bull;&nbsp;${signature}</span>`;
-            }
+            displayAll(jsonSigs);
         }
-        
-        // add the HTML string to the page
-        output.innerHTML = html;
 
     }else{
         // this means that the endpoint has never been called, so we can make the request and add it to local storage if they chose to grab all of the signatures at once
 
         // settings/options for the request
         let requestOptions = {
-                method: 'GET',
-                // redirect: 'follow' // for Postman
+                method: "GET",
+                headers: {
+                    "X-Access-Key": "$2b$10$pawX7vC6A.llrT0ctd7c2u9iCoRdccZs5guKGbU32Ic8ScTGu/uUa"
+                }
             };
 
         let url = "https://api.jsonbin.io/v3/b/645476c4b89b1e229997300a";
-        // let url = 
 
         // the call to the server and handling of data returned
         fetch(url, requestOptions)
         .then(response => response.json())
         .then(result => {
             // add the results array to local storage to pull from on future button clicks
-            let sigString = JSON.stringify(result);
+            let sigString = JSON.stringify(result.record);
 
             // add that string to local storage
             localStorage.setItem("sigs", sigString);
@@ -83,28 +105,13 @@ function fetchSignature(e){
             // using the radio buttons, determine how many signatures to display
             if(document.getElementById("one").checked){
                 // the user only wants one signature, so show them one
-                
-                // generate a random number to use to access an element in the array
-                let random = getRandomIntInclusive(0, result.signatures.length);
+                displayOne(result.record);
 
-                // get the random signature from the returned signatures array and add it to the string
-                html = `<span id="msg">Your signature, milady:</span>
-                                    <span id="sig">${result.signatures[random]}</span>`;
             }else{
                 // they want them ALL. Let's GOOOOOO
-                
-                // first, a message
-                html += `<span id="msg">Your plethora of nonsense, Jeeves:</span>`;
-                
-                // then generate the rest of the string of signatures
-                for(let signature of result.signatures){
-                    html += `<span class="multi-sig">&bull;&nbsp;${signature}</span>`;
-                }
+                displayAll(result.record);
+
             }
-            
-            // add the HTML string to the page
-            output.innerHTML = html;
-            
         })
         .catch(error => {
             // display error msg to user
